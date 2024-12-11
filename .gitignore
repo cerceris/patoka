@@ -1,0 +1,10 @@
+*.swp
+node_modules
+package-lock.json
+Cargo.lock
+logs
+target
+build
+pull_ref
+/target
+**/*.rs.bk

@@ -1,0 +1,28 @@
+[package]
+name = "patoka"
+version = "0.1.0"
+authors = ["Andrei Borodaenko <andrei.borodaenko@gmail.com>"]
+edition = "2021"
+
+[dependencies]
+actix = "0.13"
+bb8 = "0.8"
+bb8-postgres = "0.8"
+chrono = { version = "0.4", features = ["serde"] }
+clap = { version = "3", features = ["cargo"] }
+config = "0.13"
+csv = "1.1"
+lazy_static = "1.4"
+num_cpus = "1.13"
+rand = "0.8"
+regex = "1.6"
+serde = "1.0"
+serde_derive = "1.0"
+serde_json = "1.0"
+slog = { version = "2.7", features = ["max_level_trace", "release_max_level_debug"] }
+slog-term = "2.9"
+tokio-postgres = "0.7"
+xml-rs = "0.8"
+uuid = { version = "1.1", features = ["serde", "v4", "v5"] }
+zmq = "0.9" 
+

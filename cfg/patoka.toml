@@ -1,0 +1,20 @@
+[general]
+router_port = 3333
+user_agents = "$PATOKA_ROOT/cfg/useragents.xml"
+worker_log_level = "trace"
+#number_of_workers = auto
+#number_of_workers = 1
+
+[proxy]
+list = "$PATOKA_ROOT/cfg/proxies.csv"
+
+[task_a]
+enabled = true
+config = "cfg/task_a.toml"
+
+[task_b]
+enabled = false
+config = "cfg/task_b.toml"
+
+[center]
+address = "tcp://127.0.0.1:4444"

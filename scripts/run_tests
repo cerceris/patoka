@@ -1,0 +1,9 @@
+#!/bin/bash
+
+## Run from .. like ./scripts/run_tests
+set -eux
+
+export LD_LIBRARY_PATH=/usr/local/lib
+export PATOKA_ROOT_DIR=`pwd`
+
+cargo test
