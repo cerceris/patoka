@@ -3,6 +3,8 @@ name = "patoka"
 version = "0.1.0"
 authors = ["Andrei Borodaenko <andrei.borodaenko@gmail.com>"]
 edition = "2021"
+license = "MIT"
+description = "Try this if you can decompose your problem into actors"
 
 [dependencies]
 actix = "0.13"
