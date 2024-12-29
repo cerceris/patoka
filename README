@@ -1,7 +1,6 @@
-## ZeroMQ
-RUN set -eux; \
-    url="https://github.com/zeromq/libzmq/releases/download/v4.3.5/zeromq-4.3.5.tar.gz"; \
-    wget "$url"; \
-    tar xvf zeromq-4.3.5.tar.gz; \
-    cd zeromq-4.3.5; \
-    ./configure && make -j 8 && make install;
+```
+cd  docker
+./create_patoka_network
+./build_patoka_base
+./run_rust_dev <PROJECTS_DIR>
+```

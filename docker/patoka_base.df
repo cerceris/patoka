@@ -1,0 +1,40 @@
+FROM ubuntu:24.04
+
+RUN set -eux && apt update && apt upgrade -y && apt install -y \
+    build-essential curl git iputils-ping libasound2-dev libcairo2 libcups2 \
+    libatk-bridge2.0-0 libatk1.0-0 libdrm-dev libgbm1 libnss3 libpango-1.0-0 \
+    libxcomposite1 libxdamage1 libxfixes3 libxkbcommon-x11-0 libxrandr2 \
+    net-tools pkg-config python3 telnet vim wget
+
+## Rust
+RUN set -eux; \
+    url="https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init"; \
+    wget "$url"; \
+    chmod +x rustup-init; \
+    ./rustup-init -y --profile minimal --default-toolchain stable; \
+    rm -f rustup-init;
+
+## Node
+RUN set -eux; \
+    url="https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh"; \
+    wget "$url"; \
+    chmod +x install.sh; \
+    ./install.sh;
+
+ARG NODE_VERSION=20.18.1
+
+ENV NODE_VERSION=$NODE_VERSION \
+    NVM_DIR=/root/.nvm \
+    PATH="/root/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
+
+RUN . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION}; \
+    node -v; \
+    npm -v;
+
+## ZeroMQ
+RUN set -eux; \
+    url="https://github.com/zeromq/libzmq/releases/download/v4.3.5/zeromq-4.3.5.tar.gz"; \
+    wget "$url"; \
+    tar xvf zeromq-4.3.5.tar.gz; \
+    cd zeromq-4.3.5; \
+    ./configure && make -j 8 && make install;

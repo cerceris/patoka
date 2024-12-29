@@ -1,0 +1,5 @@
+#!/bin/bash
+
+set -eux
+
+docker build --no-cache -t patoka-base -f patoka_base.df .

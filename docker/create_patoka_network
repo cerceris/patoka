@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -eux
+
+docker network create \
+    -d bridge \
+    --attachable \
+    --scope local \
+    --subnet 10.1.1.0/24 \
+    --gateway 10.1.1.254 \
+    patoka-network
+

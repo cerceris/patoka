@@ -1,0 +1,17 @@
+#!/bin/bash
+
+## ./run_rust_dev <PROJECTS_DIR>
+## It is assumed PROJECTS_DIR contains patoka, patoka-x, patoka-demo.
+
+set -eux
+
+PROJECTS_DIR=$1
+
+docker run -it --name rust_dev \
+    -v $PROJECTS_DIR:/home/src \
+    -h rustdev \
+    --network patoka-network \
+    --ip 10.1.1.100 \
+    -w /home/src/ \
+    patoka-base
+
