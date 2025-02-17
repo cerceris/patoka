@@ -125,3 +125,15 @@ pub fn set_key_value(
         *v = json!({ key : value });
     }
 }
+
+pub fn is_enabled(name: &str) -> bool {
+    let key = name.to_string() + ".enabled";
+
+    if let Some(v) = get_opt_var(&key) {
+        if v == "true" {
+            return true;
+        }
+    }
+
+    false
+}

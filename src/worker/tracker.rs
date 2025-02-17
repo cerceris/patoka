@@ -35,7 +35,7 @@ pub enum TaskUpdateTag {
     Question = 4,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct TaskUpdate {
     pub task_uuid: String,
 
@@ -427,6 +427,8 @@ impl TaskTracker {
         msg: TaskUpdate,
         _ctx: &mut <Self as Actor>::Context
     ) {
+        //debug!(self.log, "Received task update {:?}", msg);
+
         let msg_short = TaskUpdate::new(
             msg.task_uuid.clone(),
             msg.status,
@@ -469,6 +471,12 @@ impl TaskTracker {
             for s in subscribers.values() {
                 s.do_send(msg_short.clone());
             }
+        } else {
+            debug!(
+                self.log,
+                "No subscribers by name [NAME] {}",
+                msg.name,
+            );
         }
 
         // Always send to the task tree.
@@ -574,6 +582,8 @@ impl Actor for TaskTracker {
 
     fn started(&mut self, ctx: &mut Self::Context) {
         info!(self.log, "Task Tracker started.");
+
+        ctx.set_mailbox_capacity(1000000);
 
         registry::register(
             "task_tracker".to_string(),

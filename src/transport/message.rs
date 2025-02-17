@@ -3,8 +3,11 @@ use serde_derive::{Deserialize, Serialize};
 use serde_json;
 use zmq;
 
+use crate::core::timestamp;
+
 pub type Identity = zmq::Message;
 
+#[derive(Debug)]
 pub struct RawMessage {
     pub identity: Identity,
     pub body: String,
@@ -39,10 +42,7 @@ impl RawMessage {
         P: serde::de::DeserializeOwned
     {
         let payload: P = serde_json::from_str(&rwm.body)?;
-        Ok(GenMessage {
-            identity: rwm.identity,
-            payload,
-        })
+        Ok(GenMessage::with_identity(payload, rwm.identity))
     }
 
     pub fn from<P>(wm: GenMessage<P>) -> Self
@@ -90,6 +90,8 @@ pub struct GenMessage<P> {
     #[serde(default = "new_identity")]
     pub identity: Identity,
     pub payload: P,
+    #[serde(skip)]
+    pub created_at: i64,
 }
 
 impl<P> GenMessage<P> {
@@ -97,6 +99,7 @@ impl<P> GenMessage<P> {
         Self {
             identity: new_identity(),
             payload,
+            created_at: timestamp::now().timestamp_millis(),
         }
     }
 
@@ -104,6 +107,7 @@ impl<P> GenMessage<P> {
         Self {
             identity,
             payload,
+            created_at: timestamp::now().timestamp_millis(),
         }
     }
 }
@@ -116,6 +120,7 @@ where
         Self {
             identity: clone_identity(&self.identity),
             payload: self.payload.clone(),
+            created_at: self.created_at,
         }
     }
 }

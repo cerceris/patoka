@@ -4,6 +4,7 @@ pub mod env;
 pub mod logger;
 pub mod monitor;
 pub mod proxy;
+pub mod recipient_group;
 pub mod timer;
 pub mod timestamp;
 pub mod user_agent;

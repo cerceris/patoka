@@ -14,6 +14,7 @@ use crate::{
         logger::create_logger,
         monitor::*,
         timer::Timer,
+        timestamp,
     },
     worker::{
         controller_message::*,
@@ -340,8 +341,20 @@ impl WorkerController {
             self.delayed_client_messages.len()
         );
 
+        let now_ts = timestamp::now().timestamp_millis();
         let messages = mem::take(&mut self.delayed_worker_messages);
         for msg in messages {
+            if now_ts - msg.created_at > 5000 {
+                continue;
+            }
+            self.send_regular_message_to_worker(msg);
+        }
+
+        let messages = mem::take(&mut self.delayed_client_messages);
+        for msg in messages {
+            if now_ts - msg.created_at > 5000 {
+                continue;
+            }
             self.send_regular_message_to_worker(msg);
         }
 
@@ -479,6 +492,8 @@ impl Actor for WorkerController {
 
     fn started(&mut self, ctx: &mut Self::Context) {
         info!(self.log, "Started.");
+
+        ctx.set_mailbox_capacity(1000000);
 
         self.own_addr = Some(ctx.address());
 

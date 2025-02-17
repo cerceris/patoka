@@ -56,6 +56,8 @@ impl Actor for TaskReprocessor {
 
     fn started(&mut self, ctx: &mut Self::Context) {
         info!(self.log, "Task Reprocessor started.");
+
+        ctx.set_mailbox_capacity(1000000);
         self.report_status_timer.reset::<Self>(ctx);
     }
 

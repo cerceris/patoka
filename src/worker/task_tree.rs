@@ -301,6 +301,8 @@ impl Actor for TaskTree {
     fn started(&mut self, ctx: &mut Self::Context) {
         info!(self.log, "Task Tree started.");
 
+        ctx.set_mailbox_capacity(1000000);
+
         registry::register(
             "task_tree".to_string(),
             ctx.address().recipient(),

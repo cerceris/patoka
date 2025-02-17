@@ -3,7 +3,7 @@ use std::collections::{HashMap, HashSet};
 use crate::{
     worker::{
         task::{TaskStatus},
-        tracker::{TaskUpdate, TaskUpdateTag},
+        tracker::{self, TaskUpdate, TaskUpdateTag},
     },
 };
 
@@ -11,6 +11,7 @@ use crate::{
 pub struct UniqueTask {
     name: String,
     uuid: Option<String>,
+    parent_uuid: Option<String>,
 }
 
 impl UniqueTask {
@@ -19,6 +20,18 @@ impl UniqueTask {
         Self {
             name,
             uuid: None,
+            parent_uuid: None,
+        }
+    }
+
+    pub fn new_with_parent(
+        name: String,
+        parent_uuid: Option<String>
+    ) -> Self {
+        Self {
+            name,
+            uuid: None,
+            parent_uuid,
         }
     }
 
@@ -75,6 +88,8 @@ pub struct UniqueTaskGroup {
 
     /// Task Name --> UniqueTask
     pub tasks: HashMap<String, UniqueTask>,
+
+    pub parent_uuid: Option<String>,
 }
 
 impl UniqueTaskGroup {
@@ -83,6 +98,15 @@ impl UniqueTaskGroup {
         Self {
             name,
             tasks: HashMap::new(),
+            parent_uuid: None,
+        }
+    }
+
+    pub fn new_with_parent(name: String, parent_uuid: String) -> Self {
+        Self {
+            name,
+            tasks: HashMap::new(),
+            parent_uuid: Some(parent_uuid),
         }
     }
 
@@ -91,23 +115,49 @@ impl UniqueTaskGroup {
             return false;
         }
 
-        self.tasks.insert(task_name.clone(), UniqueTask::new(task_name));
+        self.tasks.insert(
+            task_name.clone(),
+            UniqueTask::new_with_parent(
+                task_name.clone(),
+                self.parent_uuid.clone()
+            ),
+        );
+
+        if let Some(p) = &self.parent_uuid {
+            tracker::subscribe_by_name(task_name, p.clone());
+        }
+
         true
     }
 
     pub fn remove(&mut self, task_name: &str) -> bool {
-        !self.tasks.remove(task_name).is_none()
+        let res = self.tasks.remove(task_name).is_some();
+        if res {
+            if let Some(p) = &self.parent_uuid {
+                tracker::unsubscribe_by_name(task_name.into(), p.clone());
+            }
+        }
+        res
     }
 
     pub fn update(&mut self, msg: &TaskUpdate) -> Option<TaskUpdateTag> {
+        let mut tag = None;
         for t in self.tasks.values_mut() {
-            let tag = t.update(msg);
+            tag = t.update(msg);
             if tag.is_some() {
-                return tag;
+                break;
             }
         }
 
-        None
+        if let Some(TaskUpdateTag::Finished) = tag {
+            self.remove(&msg.name);
+
+            if let Some(p) = &self.parent_uuid {
+                tracker::unsubscribe_by_name(msg.name.clone(), p.clone());
+            }
+        }
+
+        tag
     }
 
     pub fn must_not_running(&self, task_name: &str) {
